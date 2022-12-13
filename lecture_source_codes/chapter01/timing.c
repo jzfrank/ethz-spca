@@ -25,6 +25,24 @@ unsigned long calc()
     }
     return t;
 }    
+
+void copyij(int src[2048][2048],
+	    int dst[2048][2048])
+{
+    int i,j;
+    for (i = 0; i < 2048; i++)
+	for (j = 0; j < 2048; j++)
+	    dst[i][j] = src[i][j];
+}
+
+void copyji(int src[2048][2048],
+	    int dst[2048][2048])
+{
+    int i,j;
+    for (j = 0; j < 2048; j++)
+	for (i = 0; i < 2048; i++)
+	    dst[i][j] = src[i][j];
+}
     
 
 int main(int argc, char *argv[])
@@ -49,8 +67,23 @@ int main(int argc, char *argv[])
     t1 = access_counter();
     result = calc();
     t2 = access_counter() - t1 - overhead;
-    printf("Time taken = %lu cycles\n", t2 );
+    printf("Time taken to compute sum of 1,2,3,...,1000000 = %lu cycles\n", t2 );
     printf("Result = %lu\n", result );
+
+    // timing copyij vs copyji 
+    static int src[2048][2048];
+    static int dst[2048][2048];
+
+    t1 = access_counter();
+    copyij(src,dst);
+    t2 = access_counter() - t1 - overhead;
+    printf("Time taken for copyij = %lu cycles\n", t2 );
+
+    t1 = access_counter();
+    copyji(src,dst);
+    t2 = access_counter() - t1 - overhead;
+    printf("Time taken for copyji = %lu cycles\n", t2 );
+    
     return 0;
 }
     
