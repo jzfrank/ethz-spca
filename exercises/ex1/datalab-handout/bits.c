@@ -190,7 +190,9 @@ int bitAnd(int x, int y) {
  *   Rating: 1
  */
 int bitXor(int x, int y) {
-  return 2;
+  int a = x & y;
+  int b = (~x) & (~y);
+  return (~a) & (~b);
 }
 /* 
  * isEqual - return 1 if x == y, and 0 otherwise 
@@ -200,7 +202,9 @@ int bitXor(int x, int y) {
  *   Rating: 2
  */
 int isEqual(int x, int y) {
-  return 2;
+  // if x == y, then x^y = 0. then take ! gives 1
+  // if x != y, then x^y != 0, then take ! gives 0
+  return !(x ^ y); 
 }
 /* 
  * getByte - Extract byte n from word x
@@ -211,7 +215,9 @@ int isEqual(int x, int y) {
  *   Rating: 2
  */
 int getByte(int x, int n) {
-  return 2;
+  // shift x to right by n * 8 bits (n bytes)
+  // bitwise and with 0xff = 0b11111111
+  return (x >> (n << 3)) & 0xff;
 }
 /* 
  * fitsBits - return 1 if x can be represented as an 
@@ -223,7 +229,10 @@ int getByte(int x, int n) {
  *   Rating: 2
  */
 int fitsBits(int x, int n) {
-  return 2;
+  int c = 33 + (~n); // ~n + 1 = -n
+  int new_x = (x << c) >> c; // shift x by c, then shift back 
+  int isFit = ! (new_x ^ x); // !(a^b) <-> a == b
+  return isFit;
 }
 /* 
  * anyEvenBit - return 1 if any even-numbered bit in word set to 1
@@ -234,7 +243,8 @@ int fitsBits(int x, int n) {
  *   Rating: 2
  */
 int anyEvenBit(int x) {
-  return 2;
+  // note: 0x5 = 0b0101
+  return !!(x & 0x55555555);
 }
 /*
  * bitCount - returns count of number of 1's in word
@@ -244,7 +254,13 @@ int anyEvenBit(int x) {
  *   Rating: 4
  */
 int bitCount(int x) {
-  return 2;
+  // recursively sum up nearby 1, 2, 4, 8, 16 bits 
+  int s1 = (x & 0x55555555) + ((x >> 1) & 0x55555555);
+  int s2 = (s1 & 0x33333333) + ((s1 >> 2) & 0x33333333);
+  int s4 = (s2 & 0x0f0f0f0f) + ((s2 >> 4) & 0x0f0f0f0f);
+  int s8 = (s4 & 0x00ff00ff) + ((s4 >> 8) & 0x00ff00ff);
+  int s16 = (s8 & 0x0000ffff) + ((s8 >> 16) & 0x0000ffff);
+  return s16;
 }
 /* 
  * bang - Compute !x without using !
@@ -277,7 +293,10 @@ int leastBitPos(int x) {
  *   Rating: 1
  */
 int tmax(void) {
-  return 2;
+  // 1 << 31 -> 0b1000...000
+  // then signed shift -> 0b1111...111
+  // then mask the highest bit with 0b1000...000
+  return ((1 << 31) >> 31) ^ (1 << 31);
 }
 /* 
  * absVal - absolute value of x
