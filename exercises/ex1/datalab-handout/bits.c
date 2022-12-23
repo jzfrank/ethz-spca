@@ -270,7 +270,9 @@ int bitCount(int x) {
  *   Rating: 4 
  */
 int bang(int x) {
-  return 2;
+  // if x is not 0, the previous value will be 0xFFFFFFFF 
+  // add it by 1 gives 0x00000000 
+  return ((x >> 31) | (~x + 1) >> 31) + 1;
 }
 /* 
  * leastBitPos - return a mask that marks the position of the
@@ -281,7 +283,10 @@ int bang(int x) {
  *   Rating: 2 
  */
 int leastBitPos(int x) {
-  return 2;
+  // flip x
+  // then add by 1 
+  // bitwise and with x 
+  return (x & (~x + 1));
 }
 /* * * * * * * * * * * * * * * * * * * *
  * Part II: Two's Complement Arithmetic *
@@ -307,7 +312,13 @@ int tmax(void) {
  *   Rating: 4
  */
 int absVal(int x) {
-  return 2;
+  // https://stackoverflow.com/questions/12041632/how-to-compute-the-integer-absolute-value
+  // note the mask will be 0x111....111 if x is negative
+  //      while the mask will be 0x000....000 if x is positive
+  // for negative: ~x + 1 
+  // for positive: does nothing 
+  int mask = (x >> 31);
+  return (x ^ mask) - mask;
 }
 /* 
  * isNonNegative - return 1 if x >= 0, return 0 otherwise 
@@ -317,7 +328,9 @@ int absVal(int x) {
  *   Rating: 2
  */
 int isNonNegative(int x) {
-  return 2;
+  return !((1 << 31) & x);
+  // return isEqual(absVal(x), x); 
+  // why this does not work? because (~ 0x8000000 + 1) = 0x8000000
 }
 /* 
  * isGreater - if x > y  then return 1, else return 0 
@@ -341,7 +354,8 @@ int isGreater(int x, int y) {
  *   Rating: 3
  */
 int multFiveEighths(int x) {
-  return 2;
+  // return (x + x << 2) >> 3; // overflow behaviour 
+  return 1;
 }
 /* 
  * rotateLeft - Rotate x to the left by n
@@ -352,7 +366,17 @@ int multFiveEighths(int x) {
  *   Rating: 3 
  */
 int rotateLeft(int x, int n) {
-  return 2;
+  // if x is positve: (x << n) | (x >> (32 - n))
+  // in consideration of negative: need to mask with ~(-1 << n)
+  return (x << n) | ((x >> (32 - n)) & (~(-1 << n)));
+  // my try: 
+  // if (n==0) return x; 
+  // int maskTop = (1 << 31) >> (n-1);
+  // int topN = (maskTop & x);
+  // int shiftedTopN = topN >> (32 - n);
+  // int maskBottom = ~((1 << 31) >> (31 - n));
+  // int bottomN = (maskBottom & shiftedTopN);
+  // return bottomN | (x << n);
 }
 /*
  * satMul2 - multiplies by 2, saturating to Tmin or Tmax if overflow
